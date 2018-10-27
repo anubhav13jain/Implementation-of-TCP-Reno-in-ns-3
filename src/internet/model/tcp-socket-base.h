@@ -1003,12 +1003,12 @@ protected:
   /**
    * \brief Dupack management
    */
-  void DupAck ();
+  void DupAck (SequenceNumber32 const& oldHeadSequence);
 
   /**
    * \brief Enter the CA_RECOVERY, and retransmit the head
    */
-  void EnterRecovery ();
+  void EnterRecovery (SequenceNumber32 const& oldHeadSequence);
 
   /**
    * \brief An RTO event happened

@@ -1529,7 +1529,7 @@ TcpSocketBase::ReadOptions (const TcpHeader &tcpHeader, bool &scoreboardUpdated)
 }
 
 void
-TcpSocketBase::EnterRecovery ()
+TcpSocketBase::EnterRecovery ( const SequenceNumber32 &oldHeadSequence)
 {
   NS_LOG_FUNCTION (this);
   NS_ASSERT (m_tcb->m_congState != TcpSocketState::CA_RECOVERY);
@@ -1557,8 +1557,15 @@ TcpSocketBase::EnterRecovery ()
   // RFC 6675, point (4):
   // (4) Invoke fast retransmit and enter loss recovery as follows:
   // (4.1) RecoveryPoint = HighData
-  m_recover = m_tcb->m_highTxMark;
-
+  //m_recover = m_tcb->m_highTxMark;
+  if(m_congestionControl->GetName ()=="TcpReno")
+    { NS_LOG_UNCOND ("Test m_recover");
+        m_recover = oldHeadSequence;
+    }
+  else
+    {
+        m_recover = m_tcb->m_highTxMark;
+    }
   m_congestionControl->CongestionStateSet (m_tcb, TcpSocketState::CA_RECOVERY);
   m_tcb->m_congState = TcpSocketState::CA_RECOVERY;
 
@@ -1582,7 +1589,7 @@ TcpSocketBase::EnterRecovery ()
 }
 
 void
-TcpSocketBase::DupAck ()
+TcpSocketBase::DupAck ( const SequenceNumber32 &oldHeadSequence)
 {
   NS_LOG_FUNCTION (this);
   // NOTE: We do not count the DupAcks received in CA_LOSS, because we
@@ -1636,7 +1643,7 @@ TcpSocketBase::DupAck ()
       // (1) If DupAcks >= DupThresh, go to step (4).
       if ((m_dupAckCount == m_retxThresh) && (m_highRxAckMark >= m_recover))
         {
-          EnterRecovery ();
+          EnterRecovery (oldHeadSequence);
           NS_ASSERT (m_tcb->m_congState == TcpSocketState::CA_RECOVERY);
         }
       // (2) If DupAcks < DupThresh but IsLost (HighACK + 1) returns true
@@ -1645,7 +1652,7 @@ TcpSocketBase::DupAck ()
       // go to step (4).
       else if (m_txBuffer->IsLost (m_highRxAckMark + m_tcb->m_segmentSize))
         {
-          EnterRecovery ();
+          EnterRecovery ( oldHeadSequence);
           NS_ASSERT (m_tcb->m_congState == TcpSocketState::CA_RECOVERY);
         }
       else
@@ -1761,7 +1768,7 @@ TcpSocketBase::ProcessAck (const SequenceNumber32 &ackNumber, bool scoreboardUpd
     {
       // loss recovery check is done inside this function thanks to
       // the congestion state machine
-      DupAck ();
+      DupAck (oldHeadSequence);
     }
 
   if (ackNumber == oldHeadSequence

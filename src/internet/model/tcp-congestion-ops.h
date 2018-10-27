@@ -168,6 +168,38 @@ public:
    */
   virtual Ptr<TcpCongestionOps> Fork () = 0;
 };
+class TcpReno : public TcpCongestionOps
+{
+public:
+  /**
+   * \brief Get the type ID.
+   * \return the object TypeId
+   */
+  static TypeId GetTypeId (void);
+
+  TcpReno ();
+
+  /**
+   * \brief Copy constructor.
+   * \param sock object to copy.
+   */
+  TcpReno (const TcpReno& sock);
+
+  ~TcpReno ();
+
+  std::string GetName () const;
+
+  virtual void IncreaseWindow (Ptr<TcpSocketState> tcb, uint32_t segmentsAcked);
+  virtual uint32_t GetSsThresh (Ptr<const TcpSocketState> tcb,
+                                uint32_t bytesInFlight);
+
+  virtual Ptr<TcpCongestionOps> Fork ();
+
+protected:
+  virtual uint32_t SlowStart (Ptr<TcpSocketState> tcb, uint32_t segmentsAcked);
+  virtual void CongestionAvoidance (Ptr<TcpSocketState> tcb, uint32_t segmentsAcked);
+};
+
 
 /**
  * \brief The NewReno implementation

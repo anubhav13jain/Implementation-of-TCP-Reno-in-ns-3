@@ -79,9 +79,9 @@ TcpReno::~TcpReno (void)
 }
 
 /**
- * \brief Tcp NewReno slow start algorithm
+ * \brief Tcp Reno slow start algorithm
  *
- * Defined in RFC 5681 as
+ * Defined in RFC 2581 as
  *
  * > During slow start, a TCP increments cwnd by at most SMSS bytes for
  * > each ACK received that cumulatively acknowledges new data.  Slow
@@ -120,6 +120,7 @@ u32 tcp_slow_start(struct tcp_sock *tp, u32 acked)
  * \param segmentsAcked count of segments acked
  * \return the number of segments not considered for increasing the cWnd
  */
+
 uint32_t
 TcpReno::SlowStart (Ptr<TcpSocketState> tcb, uint32_t segmentsAcked)
 {
@@ -144,6 +145,7 @@ TcpReno::SlowStart (Ptr<TcpSocketState> tcb, uint32_t segmentsAcked)
  * \param tcb internal congestion state
  * \param segmentsAcked count of segments acked
  */
+
 void
 TcpReno::CongestionAvoidance (Ptr<TcpSocketState> tcb, uint32_t segmentsAcked)
 {
@@ -160,7 +162,7 @@ TcpReno::CongestionAvoidance (Ptr<TcpSocketState> tcb, uint32_t segmentsAcked)
 }
 
 /**
- * \brief Try to increase the cWnd following the NewReno specification
+ * \brief Try to increase the cWnd following the Reno specification
  *
  * \see SlowStart
  * \see CongestionAvoidance
@@ -168,6 +170,7 @@ TcpReno::CongestionAvoidance (Ptr<TcpSocketState> tcb, uint32_t segmentsAcked)
  * \param tcb internal congestion state
  * \param segmentsAcked count of segments acked
  */
+
 void
 TcpReno::IncreaseWindow (Ptr<TcpSocketState> tcb, uint32_t segmentsAcked)
 {

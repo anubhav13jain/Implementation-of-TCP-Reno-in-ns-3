@@ -1554,18 +1554,8 @@ TcpSocketBase::EnterRecovery ( const SequenceNumber32 &oldHeadSequence)
         }
     }
 
-  // RFC 6675, point (4):
-  // (4) Invoke fast retransmit and enter loss recovery as follows:
-  // (4.1) RecoveryPoint = HighData
-  //m_recover = m_tcb->m_highTxMark;
-  if(m_congestionControl->GetName ()=="TcpReno")
-    { NS_LOG_UNCOND ("Test m_recover");
-        m_recover = oldHeadSequence;
-    }
-  else
-    {
-        m_recover = m_tcb->m_highTxMark;
-    }
+  m_recover = GetRecoveryThreshold(oldHeadSequence);
+
   m_congestionControl->CongestionStateSet (m_tcb, TcpSocketState::CA_RECOVERY);
   m_tcb->m_congState = TcpSocketState::CA_RECOVERY;
 
@@ -4258,6 +4248,20 @@ RttHistory::RttHistory (const RttHistory& h)
     time (h.time),
     retx (h.retx)
 {
+}
+
+SequenceNumber32
+TcpSocketBase::GetRecoveryThreshold(const SequenceNumber32 &oldHeadSequence)
+{
+  if(m_congestionControl->GetName () == "TcpReno")
+  { 
+    return oldHeadSequence;
+  }
+
+  else
+  {
+    return m_tcb->m_highTxMark;
+  }
 }
 
 } // namespace ns3
